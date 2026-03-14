@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,11 +8,54 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
+
 <body>
   <div class="container">
     <h1>Professional Invoice Generator</h1>
     <form id="invoice-form">
+      <!-- Editable Company Settings -->
+      <div class="section settings-section">
+        <h2>Company Settings</h2>
+        <div class="grid-2">
+          <label>Company Name: <input type="text" name="compName" value="FIREFLIES INFOTECH PRIVATE LIMITED" /></label>
+          <label>GSTIN: <input type="text" name="compGST" value="09AACCF9544M2Z0" /></label>
+        </div>
+        <div class="grid-2">
+          <label>CIN No.: <input type="text" name="compCIN" value="U72900DL2019PTC307683" /></label>
+          <label>Mobile: <input type="text" name="compMobile" value="8896961906, 9415052356" /></label>
+        </div>
+        <div class="grid-2">
+          <label>Website URL: <input type="url" name="compWebsite" value="https://www.bodybannao.com" /></label>
+          <div id="qrcode-container" style="display:none;"></div>
+        </div>
+        <label>Address: <textarea name="compAddress"
+            rows="2">Head Office: 7/17-A Parwati Bangla Road, Kanpur (U.P.) - 208002</textarea></label>
+      </div>
+
+      <!-- Bank Details Settings -->
+      <div class="section settings-section">
+        <h2>Bank Details Settings</h2>
+        <div class="grid-2">
+          <div class="bank-box">
+            <h3>Bank 1</h3>
+            <label>Name: <input type="text" name="bank1Name" value="INDIAN BANK" /></label>
+            <label>A/c No.: <input type="text" name="bank1Acc" value="6501673338" /></label>
+            <label>IFSC: <input type="text" name="bank1IFSC" value="IDIB000S810" /></label>
+            <label>Branch: <input type="text" name="bank1Branch" value="SWAROOP NAGAR KANPUR-208002" /></label>
+          </div>
+          <div class="bank-box">
+            <h3>Bank 2</h3>
+            <label>Name: <input type="text" name="bank2Name" value="STATE BANK OF INDIA" /></label>
+            <label>A/c No.: <input type="text" name="bank2Acc" value="39783639650" /></label>
+            <label>IFSC: <input type="text" name="bank2IFSC" value="SBIN0030246" /></label>
+            <label>Branch: <input type="text" name="bank2Branch" value="BIRHANA ROAD KANPUR-208001" /></label>
+          </div>
+        </div>
+      </div>
+
       <div class="section">
         <h2>Bill To</h2>
         <textarea name="billTo" id="billTo" rows="3">IGNITED GYM FITNESS
@@ -69,11 +113,22 @@ Mobile: 9571022687</textarea>
       </div>
       <div class="section">
         <h2>Declaration</h2>
-        <textarea name="declaration" id="declaration" rows="2">We declare that this Invoice Shows the actual price of the goods described & that all particulars are true & correct. Goods once sold will not be taken back.</textarea>
+        <textarea name="declaration" id="declaration" rows="4">E. & O.E.
+1. Declaration-We declare that this Invoice Shows the actual price of the goods described & that all particulars are true & correct.
+2. Goods once sold will not be taken back.
+3. All Disputes Subject to Kanpur Jurisdiction.</textarea>
+      </div>
+      <div class="section">
+        <h2>Signature</h2>
+        <div class="signature-container">
+          <canvas id="signature-pad" width="400" height="200"></canvas>
+        </div>
+        <button type="button" id="clear-signature">Clear Signature</button>
       </div>
       <button type="submit">Generate PDF</button>
     </form>
   </div>
   <script src="script.js"></script>
 </body>
+
 </html>

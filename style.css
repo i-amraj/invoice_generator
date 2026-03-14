@@ -75,3 +75,47 @@ button:hover {
 .remove-row:hover {
   background: #b71c1c;
 }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.settings-section {
+  background: #f9fbff;
+  border: 1px dashed #284b63;
+  padding: 15px;
+  border-radius: 8px;
+}
+.bank-box {
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+}
+.bank-box h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: #284b63;
+}
+.signature-container {
+  border: 2px solid #bfc9d1;
+  background: #fff;
+  border-radius: 4px;
+  width: fit-content;
+  margin-bottom: 10px;
+}
+#signature-pad {
+  cursor: crosshair;
+}
+#clear-signature {
+  background: #6c757d;
+}
+#clear-signature:hover {
+  background: #5a6268;
+}
+
+@media (max-width: 600px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

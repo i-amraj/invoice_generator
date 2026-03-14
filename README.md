@@ -4,11 +4,10 @@ A lightweight, professional, and client-side invoice generator built with HTML, 
 
 ## 🚀 Features
 
-- **Instant PDF Generation**: Create professional invoices directly in your browser using `jsPDF`.
-- **Auto-Calculations**: Dynamic calculation of subtotals, GST (CGST/SGST), and grand totals.
-- **Dynamic Rows**: Easily add or remove items from the invoice table.
-- **Professional Layout**: Includes company header, "Bill To" section, invoice details, itemized table, and declaration.
-- **Standalone**: No Python, Node.js, or database required. Just open `index.html`.
+- **Stylish QR Code**: Automatically generates a QR code for your website URL and embeds it at the top right of the PDF.
+- **Permanent Signature Field**: The signature line and "Auth. Signatory" text now always appear in the PDF, even without a digital signature.
+- **Digital Signature Overlay**: Sign with mouse or touch, and it overlay on the signature line.
+- **Fully Editable Settings**: Company info, bank details, and website URL can all be customized from the UI.
 
 ## 🛠️ Built With
 
