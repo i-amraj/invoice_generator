@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Generator</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Professional Invoice Generator</h1>
+    <form id="invoice-form">
+      <div class="section">
+        <h2>Bill To</h2>
+        <textarea name="billTo" id="billTo" rows="3">IGNITED GYM FITNESS
+B-1/18, Sector H, Sector-A, Aliganj, Lucknow, Uttar Pradesh 226024
+Mobile: 9571022687</textarea>
+      </div>
+      <div class="section">
+        <h2>Invoice Details</h2>
+        <label>Invoice No.: <input type="text" name="invoiceNo" value="PF/2026/001" /></label>
+        <label>Date: <input type="date" name="date" value="2026-03-14" /></label>
+      </div>
+      <div class="section">
+        <h2>Items</h2>
+        <table id="items-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>HSN/SAC</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="items-body">
+            <tr>
+              <td><input type="text" name="desc[]" value="BODYBANNAO GYM SOFTWARE" /></td>
+              <td><input type="text" name="hsn[]" value="9983" /></td>
+              <td><input type="number" name="qty[]" value="1" min="1" /></td>
+              <td><input type="number" name="rate[]" value="5085" min="0" /></td>
+              <td><input type="number" name="amount[]" value="5085" readonly /></td>
+              <td><button type="button" class="remove-row">Remove</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="button" id="add-row">Add Row</button>
+      </div>
+      <div class="section">
+        <h2>GST</h2>
+        <label>GST Rate:
+          <select name="gstRate" id="gstRate">
+            <option value="0">0%</option>
+            <option value="9" selected>9% (CGST + 9% SGST)</option>
+            <option value="18">18%</option>
+            <option value="28">28%</option>
+          </select>
+        </label>
+      </div>
+      <div class="section">
+        <h2>Totals</h2>
+        <label>Subtotal: <input type="number" id="subtotal" name="subtotal" value="5085" readonly /></label>
+        <label>CGST: <input type="number" id="cgst" name="cgst" value="457.65" readonly /></label>
+        <label>SGST: <input type="number" id="sgst" name="sgst" value="457.65" readonly /></label>
+        <label>Total: <input type="number" id="total" name="total" value="6000.3" readonly /></label>
+      </div>
+      <div class="section">
+        <h2>Declaration</h2>
+        <textarea name="declaration" id="declaration" rows="2">We declare that this Invoice Shows the actual price of the goods described & that all particulars are true & correct. Goods once sold will not be taken back.</textarea>
+      </div>
+      <button type="submit">Generate PDF</button>
+    </form>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
