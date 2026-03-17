@@ -128,9 +128,12 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
     correctLevel: QRCode.CorrectLevel.H
   });
 
-  await new Promise(resolve => setTimeout(resolve, 100));
-  const qrImage = qrContainer.querySelector('img').src;
-
+  await new Promise(resolve => setTimeout(resolve, 200));
+  
+  // Use canvas for more reliable image data
+  const qrCanvas = qrContainer.querySelector('canvas');
+  const qrImage = qrCanvas.toDataURL('image/jpeg', 1.0);
+  
   // Professional Header Layout
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
@@ -152,7 +155,7 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   doc.text(`Mobile: ${formData.get('compMobile')} | Website: ${formData.get('compWebsite')}`, 105, 49, { align: 'center' });
 
   // QR Code
-  doc.addImage(qrImage, 'PNG', 175, 10, 20, 20);
+  doc.addImage(qrImage, 'JPEG', 175, 10, 20, 20);
 
   // Divider
   doc.setDrawColor(230, 230, 230);
