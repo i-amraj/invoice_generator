@@ -1,5 +1,4 @@
-// Helper to save/load from localStorage - Updated: 2026-03-17 18:55
-alert("Script loaded!");
+// Helper to save/load from localStorage - Updated: 2026-03-17 19:02
 function saveSettings() {
   const form = document.getElementById('invoice-form');
   const formData = new FormData(form);
@@ -286,8 +285,6 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
     const fileName = `${formData.get('invoiceNo').replace(/\//g, '_')}_Invoice.pdf`;
     console.log("Attempting to generate PDF: " + fileName);
     
-    alert("Starting PDF generation...");
-    
     const pdfBlob = doc.output('blob');
     if (!pdfBlob) throw new Error("Failed to generate PDF Blob");
     
@@ -303,11 +300,9 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobURL);
-        alert("Mobile Download triggered!");
       }, 500);
     } else {
       doc.save(fileName);
-      alert("Desktop Download triggered!");
     }
   } catch (err) {
     console.error("PDF Error: ", err);
