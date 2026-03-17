@@ -282,29 +282,28 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
     const fileName = `${formData.get('invoiceNo').replace(/\//g, '_')}_Invoice.pdf`;
     console.log("Attempting to generate PDF: " + fileName);
     
+    alert("Starting PDF generation...");
+    
+    const pdfBlob = doc.output('blob');
+    if (!pdfBlob) throw new Error("Failed to generate PDF Blob");
+    
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      alert("Mobile detected. Starting PDF generation...");
-      
-      const pdfBlob = doc.output('blob');
-      if (!pdfBlob) throw new Error("Failed to generate PDF Blob");
-      
       const blobURL = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = blobURL;
       link.download = fileName;
       
-      // Some mobile browsers need the link added to DOM
       document.body.appendChild(link);
       link.click();
       
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobURL);
-        alert("Download triggered! Please check your downloads or notifications.");
+        alert("Mobile Download triggered!");
       }, 500);
-      
     } else {
       doc.save(fileName);
+      alert("Desktop Download triggered!");
     }
   } catch (err) {
     console.error("PDF Error: ", err);
