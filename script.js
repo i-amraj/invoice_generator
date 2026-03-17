@@ -278,20 +278,37 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   }
 
   // Robust Mobile Download
-  const fileName = `${formData.get('invoiceNo').replace(/\//g, '_')}_Invoice.pdf`;
-  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    // For mobile, try to open in a new tab or use a blob link which often works better than direct save
-    const pdfBlob = doc.output('blob');
-    const blobURL = URL.createObjectURL(pdfBlob);
-    const link = document.createElement('a');
-    link.href = blobURL;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(blobURL), 2000);
-  } else {
-    doc.save(fileName);
+  try {
+    const fileName = `${formData.get('invoiceNo').replace(/\//g, '_')}_Invoice.pdf`;
+    console.log("Attempting to generate PDF: " + fileName);
+    
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      alert("Mobile detected. Starting PDF generation...");
+      
+      const pdfBlob = doc.output('blob');
+      if (!pdfBlob) throw new Error("Failed to generate PDF Blob");
+      
+      const blobURL = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = blobURL;
+      link.download = fileName;
+      
+      // Some mobile browsers need the link added to DOM
+      document.body.appendChild(link);
+      link.click();
+      
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobURL);
+        alert("Download triggered! Please check your downloads or notifications.");
+      }, 500);
+      
+    } else {
+      doc.save(fileName);
+    }
+  } catch (err) {
+    console.error("PDF Error: ", err);
+    alert("Error generating PDF: " + err.message);
   }
 });
 
