@@ -1,3 +1,39 @@
+// Helper to save/load from localStorage
+function saveSettings() {
+  const form = document.getElementById('invoice-form');
+  const formData = new FormData(form);
+  const settings = {
+    compName: formData.get('compName'),
+    compGST: formData.get('compGST'),
+    compCIN: formData.get('compCIN'),
+    compMobile: formData.get('compMobile'),
+    compWebsite: formData.get('compWebsite'),
+    compAddress: formData.get('compAddress'),
+    bank1Name: formData.get('bank1Name'),
+    bank1Acc: formData.get('bank1Acc'),
+    bank1IFSC: formData.get('bank1IFSC'),
+    bank1Branch: formData.get('bank1Branch'),
+    bank2Name: formData.get('bank2Name'),
+    bank2Acc: formData.get('bank2Acc'),
+    bank2IFSC: formData.get('bank2IFSC'),
+    bank2Branch: formData.get('bank2Branch'),
+    declaration: formData.get('declaration')
+  };
+  localStorage.setItem('invoice_settings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+  const settings = JSON.parse(localStorage.getItem('invoice_settings'));
+  if (settings) {
+    const form = document.getElementById('invoice-form');
+    for (const key in settings) {
+      if (form.elements[key]) {
+        form.elements[key].value = settings[key];
+      }
+    }
+  }
+}
+
 // Add/Remove rows and auto-calculate totals
 function updateAmounts() {
   const rows = document.querySelectorAll('#items-body tr');
@@ -44,6 +80,18 @@ document.querySelectorAll('input[name="qty[]"], input[name="rate[]"]').forEach(i
 });
 document.getElementById('gstRate').addEventListener('change', updateAmounts);
 
+// Listen for changes in setting fields to auto-save
+const settingFields = [
+  'compName', 'compGST', 'compCIN', 'compMobile', 'compWebsite', 'compAddress',
+  'bank1Name', 'bank1Acc', 'bank1IFSC', 'bank1Branch',
+  'bank2Name', 'bank2Acc', 'bank2IFSC', 'bank2Branch',
+  'declaration'
+];
+settingFields.forEach(name => {
+  const elem = document.querySelector(`[name="${name}"]`);
+  if (elem) elem.addEventListener('input', saveSettings);
+});
+
 document.querySelectorAll('.remove-row').forEach(btn => {
   btn.addEventListener('click', function () {
     btn.closest('tr').remove();
@@ -70,7 +118,6 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   qrContainer.innerHTML = '';
   const websiteUrl = formData.get('compWebsite') || 'https://www.bodybannao.com';
 
-  // Generate QR Code (using a temporary promise-like approach because qrcode.js is sync but rendering might take a millisecond)
   new QRCode(qrContainer, {
     text: websiteUrl,
     width: 64,
@@ -80,60 +127,58 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
     correctLevel: QRCode.CorrectLevel.H
   });
 
-  // Small delay to ensure QR is rendered in the hidden div
   await new Promise(resolve => setTimeout(resolve, 100));
   const qrImage = qrContainer.querySelector('img').src;
 
-  // Header Logic (Dynamic from UI)
+  // Professional Header Layout
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(40, 75, 99); // --primary
+  doc.text('PERFORMA INVOICE', 105, 20, { align: 'center' });
+
   doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`GSTIN: ${formData.get('compGST')}`, 14, 12);
-  doc.text(`CIN No.: ${formData.get('compCIN')}`, 105, 12, { align: 'center' });
-
-  // Embed QR Code
-  doc.addImage(qrImage, 'PNG', 170, 8, 25, 25);
-  doc.setFontSize(8);
-  doc.setTextColor(40, 40, 120);
-  doc.text('Scan for Website', 182.5, 36, { align: 'center' });
-  doc.link(170, 8, 25, 30, { url: websiteUrl });
-
-  doc.setFontSize(18);
-  doc.setTextColor(40, 40, 120);
-  doc.text('PERFORMA INVOICE', 105, 25, { align: 'center' });
+  doc.setTextColor(150, 150, 150);
+  doc.text(`GSTIN: ${formData.get('compGST')} | CIN: ${formData.get('compCIN')}`, 105, 28, { align: 'center' });
 
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.setFont(undefined, 'bold');
-  doc.text(formData.get('compName'), 105, 35, { align: 'center' });
+  doc.text(formData.get('compName'), 105, 38, { align: 'center' });
 
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text(formData.get('compAddress'), 105, 44, { align: 'center' });
+  doc.text(`Mobile: ${formData.get('compMobile')} | Website: ${formData.get('compWebsite')}`, 105, 49, { align: 'center' });
+
+  // QR Code
+  doc.addImage(qrImage, 'PNG', 175, 10, 20, 20);
+
+  // Divider
+  doc.setDrawColor(230, 230, 230);
+  doc.line(14, 55, 196, 55);
+
+  // Info Section
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.text(formData.get('compAddress'), 105, 42, { align: 'center' });
-  doc.text(`Mobile No. ${formData.get('compMobile')}`, 105, 48, { align: 'center' });
+  doc.setTextColor(40, 75, 99);
+  doc.text('BILL TO:', 14, 65);
+  doc.text('INVOICE DETAILS:', 105, 65);
 
-  // Bill To
-  doc.setFontSize(12);
-  doc.setTextColor(0, 102, 204);
-  doc.text('Bill To:', 14, 60);
-  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 0);
-  const billTo = formData.get('billTo').split('\n');
-  doc.text(billTo, 14, 68);
+  
+  // Wrapped Bill To text
+  const billToText = formData.get('billTo');
+  const splitBillTo = doc.splitTextToSize(billToText, 80);
+  doc.text(splitBillTo, 14, 72);
 
-  // Invoice Details
-  const invoiceDetailsY = 68 + (billTo.length * 5) + 5;
-  doc.setFontSize(12);
-  doc.setTextColor(0, 102, 204);
-  doc.text('Invoice Details:', 14, invoiceDetailsY);
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`Invoice No.: ${formData.get('invoiceNo')}`, 14, invoiceDetailsY + 8);
-  doc.text(`Date: ${formData.get('date')}`, 14, invoiceDetailsY + 14);
+  doc.text(`Invoice No: ${formData.get('invoiceNo')}`, 105, 72);
+  doc.text(`Date: ${formData.get('date')}`, 105, 78);
 
-  // Table Data
-  const rows = [];
+  // Table
+  const tableRows = [];
   document.querySelectorAll('#items-body tr').forEach((tr, index) => {
-    rows.push([
+    tableRows.push([
       index + 1,
       tr.querySelector('input[name="desc[]"]').value,
       tr.querySelector('input[name="hsn[]"]').value,
@@ -144,95 +189,112 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   });
 
   doc.autoTable({
-    startY: invoiceDetailsY + 20,
-    head: [['S.No.', 'Description', 'HSN/SAC', 'Qty', 'Rate (Rs.)', 'Amount (Rs.)']],
-    body: rows,
+    startY: Math.max(95, 72 + (splitBillTo.length * 5)), // Push table down if address is long
+    head: [['S.No.', 'Description', 'HSN/SAC', 'Qty', 'Rate', 'Amount']],
+    body: tableRows,
     theme: 'grid',
-    headStyles: { fillColor: [0, 102, 204], textColor: [255, 255, 255], halign: 'center' },
+    headStyles: { fillColor: [40, 75, 99], textColor: [255, 255, 255], halign: 'center', fontSize: 9 },
     columnStyles: {
-      0: { halign: 'center' },
-      2: { halign: 'center' },
-      3: { halign: 'center' },
-      4: { halign: 'right' },
-      5: { halign: 'right' }
+      0: { halign: 'center', cellWidth: 12 },
+      1: { cellWidth: 'auto' }, // Allow description to wrap naturally
+      2: { halign: 'center', cellWidth: 20 },
+      3: { halign: 'center', cellWidth: 15 },
+      4: { halign: 'right', cellWidth: 25 },
+      5: { halign: 'right', cellWidth: 25 }
     },
-    alternateRowStyles: { fillColor: [230, 240, 255] }
+    styles: { fontSize: 9, cellPadding: 3, overflow: 'linebreak' },
+    alternateRowStyles: { fillColor: [245, 248, 250] }
   });
 
-  // Totals
-  let currentY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(11);
-  doc.setTextColor(0, 0, 0);
+  let finalY = doc.lastAutoTable.finalY + 10;
 
+  // Totals
+  doc.setFontSize(10);
   const subtotal = document.getElementById('subtotal').value;
   const gstRate = document.getElementById('gstRate').value;
   const cgst = document.getElementById('cgst').value;
   const sgst = document.getElementById('sgst').value;
   const total = document.getElementById('total').value;
 
-  doc.text('Subtotal:', 140, currentY);
-  doc.text(subtotal, 196, currentY, { align: 'right' });
+  const totalLabelX = 140;
+  const totalValueX = 196;
 
-  doc.text(`CGST @ ${gstRate}%:`, 140, currentY + 7);
-  doc.text(cgst, 196, currentY + 7, { align: 'right' });
+  // Check if we need a new page for totals if close to bottom
+  if (finalY > 250) {
+    doc.addPage();
+    finalY = 20;
+  }
 
-  doc.text(`SGST @ ${gstRate}%:`, 140, currentY + 14);
-  doc.text(sgst, 196, currentY + 14, { align: 'right' });
+  doc.text('Subtotal:', totalLabelX, finalY);
+  doc.text(subtotal, totalValueX, finalY, { align: 'right' });
 
-  doc.setFillColor(0, 102, 204);
-  doc.rect(138, currentY + 18, 60, 10, 'F');
+  doc.text(`CGST (${gstRate}%):`, totalLabelX, finalY + 6);
+  doc.text(cgst, totalValueX, finalY + 6, { align: 'right' });
+
+  doc.text(`SGST (${gstRate}%):`, totalLabelX, finalY + 12);
+  doc.text(sgst, totalValueX, finalY + 12, { align: 'right' });
+
+  doc.setFillColor(40, 75, 99);
+  doc.rect(138, finalY + 16, 60, 10, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFont(undefined, 'bold');
-  doc.text('Total Amount:', 140, currentY + 25);
-  doc.text(total, 196, currentY + 25, { align: 'right' });
+  doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL AMOUNT:', 140, finalY + 23);
+  doc.text(total, 196, finalY + 23, { align: 'right' });
 
-  currentY += 40;
-
-  // Bank Details Section (Dynamic from UI)
-  doc.setFontSize(11);
-  doc.setTextColor(40, 40, 120);
-  doc.setFont(undefined, 'bold');
-  doc.text("Company's Bank Details", 14, currentY);
-  doc.text("Company's Bank Details", 105, currentY);
-
-  doc.setTextColor(0, 0, 0);
-  doc.setFont(undefined, 'normal');
+  // Bank Details
+  finalY += 40;
+  if (finalY > 230) { doc.addPage(); finalY = 20; }
+  
+  doc.setTextColor(40, 75, 99);
   doc.setFontSize(10);
+  doc.text("BANK DETAILS", 14, finalY);
+  doc.line(14, finalY + 2, 80, finalY + 2);
 
-  // Bank 1
-  doc.text(`Bank Name : ${formData.get('bank1Name')}`, 14, currentY + 7);
-  doc.text(`A/c No.    : ${formData.get('bank1Acc')}`, 14, currentY + 13);
-  doc.text(`IFSC Code  : ${formData.get('bank1IFSC')}`, 14, currentY + 19);
-  doc.text(`Branch     : ${formData.get('bank1Branch')}`, 14, currentY + 25);
-
-  // Bank 2
-  doc.text(`Bank Name : ${formData.get('bank2Name')}`, 105, currentY + 7);
-  doc.text(`A/c No.    : ${formData.get('bank2Acc')}`, 105, currentY + 13);
-  doc.text(`IFSC Code  : ${formData.get('bank2IFSC')}`, 105, currentY + 19);
-  doc.text(`Branch     : ${formData.get('bank2Branch')}`, 105, currentY + 25);
-
-  currentY += 35;
-
-  // Declaration
-  doc.setFont(undefined, 'italic');
-  doc.setFontSize(9);
-  doc.setTextColor(80, 80, 80);
-  const declaration = formData.get('declaration');
-  doc.text(declaration, 14, currentY, { maxWidth: 140 });
-
-  // Signature Field (Always Visible)
-  doc.setFont(undefined, 'bold');
   doc.setTextColor(0, 0, 0);
-  doc.text('__________________', 150, currentY + 25);
-  doc.text('Auth. Signatory', 160, currentY + 31, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.text(`${formData.get('bank1Name')}`, 14, finalY + 8);
+  doc.text(`A/c: ${formData.get('bank1Acc')}`, 14, finalY + 13);
+  doc.text(`IFSC: ${formData.get('bank1IFSC')}`, 14, finalY + 18);
+  doc.text(`Branch: ${formData.get('bank1Branch')}`, 14, finalY + 23);
+
+  // Declaration & Signature
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text('DECLARATION:', 14, finalY + 35);
+  doc.setFontSize(7);
+  const declarationText = formData.get('declaration');
+  const splitDeclaration = doc.splitTextToSize(declarationText, 120);
+  doc.text(splitDeclaration, 14, finalY + 40);
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('Authorized Signatory', 170, finalY + 55, { align: 'center' });
 
   if (!signaturePad.isEmpty()) {
     const signatureData = signaturePad.toDataURL();
-    doc.addImage(signatureData, 'PNG', 150, currentY + 10, 40, 15);
+    doc.addImage(signatureData, 'PNG', 150, finalY + 35, 40, 15);
   }
 
-  doc.save('invoice.pdf');
+  // Robust Mobile Download
+  const fileName = `${formData.get('invoiceNo').replace(/\//g, '_')}_Invoice.pdf`;
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    // For mobile, try to open in a new tab or use a blob link which often works better than direct save
+    const pdfBlob = doc.output('blob');
+    const blobURL = URL.createObjectURL(pdfBlob);
+    const link = document.createElement('a');
+    link.href = blobURL;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(blobURL), 2000);
+  } else {
+    doc.save(fileName);
+  }
 });
 
-// Initial calculation
+// Initial load
+loadSettings();
 updateAmounts();

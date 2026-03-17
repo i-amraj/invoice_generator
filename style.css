@@ -1,39 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: hsl(210, 50%, 25%);
+  --primary-light: hsl(210, 50%, 35%);
+  --secondary: hsl(210, 100%, 40%);
+  --accent: hsl(355, 78%, 56%);
+  --bg-main: hsl(210, 20%, 97%);
+  --bg-card: hsl(0, 0%, 100%);
+  --text-main: hsl(210, 25%, 15%);
+  --text-muted: hsl(210, 10%, 45%);
+  --border: hsl(210, 15%, 85%);
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 4px;
+}
+
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f4f8fb;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
   margin: 0;
   padding: 0;
+  line-height: 1.5;
 }
+
 .container {
-  max-width: 900px;
-  margin: 30px auto;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  padding: 30px 40px;
+  max-width: 1000px;
+  margin: 40px auto;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 40px;
 }
 h1 {
   text-align: center;
-  color: #284b63;
-  margin-bottom: 30px;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 40px;
+  letter-spacing: -0.5px;
 }
 h2 {
-  color: #1d3557;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 5px;
-  margin-top: 30px;
+  color: var(--primary);
+  border-bottom: 2px solid var(--bg-main);
+  padding-bottom: 8px;
+  margin-top: 35px;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 .section {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
 input, textarea, select {
-  font-size: 1rem;
-  padding: 6px 10px;
-  margin: 5px 0;
-  border: 1px solid #bfc9d1;
-  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   width: 100%;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 table {
   width: 100%;
@@ -41,39 +73,50 @@ table {
   margin-bottom: 10px;
 }
 th, td {
-  border: 1px solid #bfc9d1;
-  padding: 8px;
+  border: 1px solid var(--border);
+  padding: 12px;
   text-align: center;
 }
 th {
-  background: #284b63;
+  background: var(--primary);
   color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
 }
 tr:nth-child(even) {
-  background: #f0f4f8;
+  background: var(--bg-main);
 }
 button {
-  background: #284b63;
+  background: var(--primary);
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   margin-top: 10px;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 button:hover {
-  background: #1d3557;
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+button:active {
+  transform: translateY(0);
 }
 .remove-row {
-  background: #e63946;
+  background: var(--accent);
   color: #fff;
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  font-size: 0.9rem;
 }
 .remove-row:hover {
-  background: #b71c1c;
+  background: hsl(355, 78%, 46%);
 }
 .grid-2 {
   display: grid;
@@ -81,16 +124,17 @@ button:hover {
   gap: 20px;
 }
 .settings-section {
-  background: #f9fbff;
-  border: 1px dashed #284b63;
-  padding: 15px;
-  border-radius: 8px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  padding: 24px;
+  border-radius: var(--radius-lg);
 }
 .bank-box {
-  background: #fff;
-  padding: 10px;
-  border: 1px solid #eee;
-  border-radius: 5px;
+  background: var(--bg-card);
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 .bank-box h3 {
   margin-top: 0;
@@ -98,20 +142,20 @@ button:hover {
   color: #284b63;
 }
 .signature-container {
-  border: 2px solid #bfc9d1;
-  background: #fff;
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
   width: fit-content;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 #signature-pad {
   cursor: crosshair;
 }
 #clear-signature {
-  background: #6c757d;
+  background: var(--text-muted);
 }
 #clear-signature:hover {
-  background: #5a6268;
+  background: var(--text-main);
 }
 
 @media (max-width: 600px) {
