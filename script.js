@@ -1,4 +1,4 @@
-// Helper to save/load from localStorage
+// Helper to save/load from localStorage - Updated: 2026-03-17 18:50
 function saveSettings() {
   const form = document.getElementById('invoice-form');
   const formData = new FormData(form);
