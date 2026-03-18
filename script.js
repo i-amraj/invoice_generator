@@ -128,11 +128,11 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   });
 
   await new Promise(resolve => setTimeout(resolve, 200));
-  
+
   // Use canvas for more reliable image data
   const qrCanvas = qrContainer.querySelector('canvas');
   const qrImage = qrCanvas.toDataURL('image/jpeg', 1.0);
-  
+
   // Professional Header Layout
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
@@ -155,6 +155,14 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
 
   // QR Code
   doc.addImage(qrImage, 'JPEG', 175, 10, 20, 20);
+  // QR Code ke niche text add karne ke liye
+  doc.setFontSize(8);
+  doc.setTextColor(40, 75, 99); // --primary color
+  doc.text('Visit Website', 185, 33, { align: 'center' });
+
+  // Pure QR core aur text area ko clickable banane ke liye
+  doc.link(175, 10, 20, 25, { url: websiteUrl });
+
 
   // Divider
   doc.setDrawColor(230, 230, 230);
@@ -169,7 +177,7 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
 
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 0);
-  
+
   // Wrapped Bill To text
   const billToText = formData.get('billTo');
   const splitBillTo = doc.splitTextToSize(billToText, 80);
@@ -247,7 +255,7 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   // Bank Details
   finalY += 40;
   if (finalY > 230) { doc.addPage(); finalY = 20; }
-  
+
   doc.setTextColor(40, 75, 99);
   doc.setFontSize(10);
   doc.text("BANK DETAILS", 14, finalY);
@@ -284,19 +292,19 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   try {
     const fileName = `${formData.get('invoiceNo').replace(/\//g, '_')}_Invoice.pdf`;
     console.log("Attempting to generate PDF: " + fileName);
-    
+
     const pdfBlob = doc.output('blob');
     if (!pdfBlob) throw new Error("Failed to generate PDF Blob");
-    
+
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
       const blobURL = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = blobURL;
       link.download = fileName;
-      
+
       document.body.appendChild(link);
       link.click();
-      
+
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobURL);
