@@ -151,7 +151,7 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
   doc.text(formData.get('compAddress'), 105, 44, { align: 'center' });
-  doc.text(`Mobile: ${formData.get('compMobile')} | Website: ${formData.get('compWebsite')}`, 105, 49, { align: 'center' });
+  doc.text(`Mobile: ${formData.get('compMobile')}`, 105, 49, { align: 'center' });
 
   // QR Code
   doc.addImage(qrImage, 'JPEG', 175, 10, 20, 20);
