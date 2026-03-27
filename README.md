@@ -1,39 +1,44 @@
-# Professional Invoice Generator
+# 📄 Professional Invoice Generator & GitHub Sync
 
-A lightweight, professional, and client-side invoice generator built with HTML, CSS, and JavaScript. This tool allows users to generate and download professional PDF invoices instantly without any backend requirements.
+A modern, fast, and secure **Client-Side Invoice Generator** designed for professionals. This tool allows you to generate high-quality PDF invoices directly in your browser while automatically logging your activity to GitHub to keep your contribution graph green! 📈
 
-## 🚀 Features
+![Invoice UI](screenshot/Screenshot%20from%202026-03-27%2015-18-58.png)
+![Generated PDF](screenshot/Screenshot%20from%202026-03-27%2015-19-41.png)
 
-- **Stylish QR Code**: Automatically generates a QR code for your website URL and embeds it at the top right of the PDF.
-- **Permanent Signature Field**: The signature line and "Auth. Signatory" text now always appear in the PDF, even without a digital signature.
-- **Digital Signature Overlay**: Sign with mouse or touch, and it overlay on the signature line.
-- **Fully Editable Settings**: Company info, bank details, and website URL can all be customized from the UI.
+## ✨ Key Features
 
-## 🛠️ Built With
+- **🚀 Dynamic Invoice Types**: Switch between *Tax Invoice* and *Performa Invoice* with one click.
+- **🔢 Auto-Numbering**: Unique invoice IDs generated automatically based on the current timestamp.
+- **🛡️ Secure GitHub Sync**: Automatically updates an `activity_log.txt` in your repo every time an invoice is created.
+- **🔒 Privacy First**: Your GitHub Token stays safe in a private **Google Apps Script** proxy. Your data never leaves your browser.
+- **🖋️ Digital Signature**: Integrated signature pad for professional touch.
+- **📱 Mobile Friendly**: Designed to work seamlessly on both Desktop and Mobile devices.
+- **📁 Persistent Settings**: Remembers your company and bank details for your next visit.
 
-- **HTML5 & CSS3**: For structure and modern, clean styling.
-- **Vanilla JavaScript**: For logic and interactivity.
-- **jsPDF & jsPDF-AutoTable**: For high-quality PDF generation.
+## 🛠️ Technology Stack
 
-## 📖 How to Use
+- **Frontend**: HTML5, CSS3 (Vanilla), JavaScript (ES6+)
+- **Libraries**: `jsPDF` (PDF Generation), `SignaturePad` (Digital Signature), `QRCode.js` (Dynamic QR Codes)
+- **Backend Proxy**: Google Apps Script (Secure Bridge to GitHub API)
 
-1. Open `index.html` in any modern web browser.
-2. Fill in the "Bill To" details, Invoice Number, and Date.
-3. Add your items (Description, HSN, Qty, Rate). The amounts will calculate automatically.
-4. Select the GST rate from the dropdown.
-5. Review the totals and the declaration.
-6. Click **Generate PDF** to download the invoice.
+## 🚀 How to Use
 
-## 📁 Project Structure
+1. **Fill Details**: Enter your company, bank, and client information.
+2. **Generate PDF**: Click the 'Generate PDF' button.
+3. **Verify**: A secure custom modal will ask for your master password (`iamraj12` by default).
+4. **Download & Sync**: 
+   - Your professional PDF will download instantly.
+   - Your GitHub contribution graph will get a new green dot! ✅
 
-- `index.html`: The main user interface.
-- `script.js`: Contains all calculation and PDF generation logic.
-- `style.css`: Modern styling for the generator.
+## 🔐 Security Architecture
+
+This project uses a **Serverless Proxy** approach to protect sensitive information:
+- The **GitHub Personal Access Token** is stored in your private Google Script environment.
+- The web app sends a password-protected request to the script.
+- The script verifies the password and pushes the commit to GitHub on your behalf.
+
+## 🏷️ GitHub Topics (Tags)
+`invoice-generator` `github-sync` `js-pdf` `google-apps-script` `contribution-graph` `vanilla-js` `client-side` `pwa` `tax-invoice` `hsn-sac`
 
 ---
-
-## ⚖️ License & Copyright
-
-© 2026 **Raj**. All rights reserved.
-
-This project is created and maintained by **Raj**. Unauthorised copying or distribution of this project is strictly prohibited.
+Crafted with ❤️ by **Raj** & **Antigravity**.

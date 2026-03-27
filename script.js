@@ -17,7 +17,8 @@ function saveSettings() {
     bank2Acc: formData.get('bank2Acc'),
     bank2IFSC: formData.get('bank2IFSC'),
     bank2Branch: formData.get('bank2Branch'),
-    declaration: formData.get('declaration')
+    declaration: formData.get('declaration'),
+    invoiceType: formData.get('invoiceType')
   };
   localStorage.setItem('invoice_settings', JSON.stringify(settings));
 }
@@ -27,7 +28,8 @@ function loadSettings() {
   if (settings) {
     const form = document.getElementById('invoice-form');
     for (const key in settings) {
-      if (form.elements[key]) {
+      // Only set value if it exists and is not empty
+      if (form.elements[key] && settings[key]) {
         form.elements[key].value = settings[key];
       }
     }
@@ -85,11 +87,14 @@ const settingFields = [
   'compName', 'compGST', 'compCIN', 'compMobile', 'compWebsite', 'compAddress',
   'bank1Name', 'bank1Acc', 'bank1IFSC', 'bank1Branch',
   'bank2Name', 'bank2Acc', 'bank2IFSC', 'bank2Branch',
-  'declaration'
+  'declaration', 'invoiceType'
 ];
 settingFields.forEach(name => {
   const elem = document.querySelector(`[name="${name}"]`);
-  if (elem) elem.addEventListener('input', saveSettings);
+  if (elem) {
+    const eventType = elem.tagName === 'SELECT' ? 'change' : 'input';
+    elem.addEventListener(eventType, saveSettings);
+  }
 });
 
 document.querySelectorAll('.remove-row').forEach(btn => {
@@ -109,6 +114,12 @@ document.getElementById('clear-signature').addEventListener('click', () => {
 
 document.getElementById('invoice-form').addEventListener('submit', async function (e) {
   e.preventDefault();
+  const status = await RajFunction();
+  if (status === false) return;
+
+  // छिपाओ लोडिंग (Hide modal right after verification)
+  document.getElementById('custom-alert-modal').style.display = 'none';
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const formData = new FormData(this);
@@ -137,8 +148,9 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
   doc.setTextColor(40, 75, 99); // --primary
-  doc.text('PERFORMA INVOICE', 105, 20, { align: 'center' });
-
+  // doc.text('PERFORMA INVOICE', 105, 20, { align: 'center' });
+  const invoiceType = formData.get('invoiceType') || 'TAX INVOICE';
+  doc.text(invoiceType, 105, 20, { align: 'center' });
   doc.setFontSize(10);
   doc.setTextColor(150, 150, 150);
   doc.text(`GSTIN: ${formData.get('compGST')} | CIN: ${formData.get('compCIN')}`, 105, 28, { align: 'center' });
@@ -255,20 +267,26 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
   // Bank Details
   finalY += 40;
   if (finalY > 230) { doc.addPage(); finalY = 20; }
-
   doc.setTextColor(40, 75, 99);
   doc.setFontSize(10);
   doc.text("BANK DETAILS", 14, finalY);
   doc.line(14, finalY + 2, 80, finalY + 2);
-
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
+  // --- BANK 1 (Left Side) ---
   doc.text(`${formData.get('bank1Name')}`, 14, finalY + 8);
   doc.text(`A/c: ${formData.get('bank1Acc')}`, 14, finalY + 13);
   doc.text(`IFSC: ${formData.get('bank1IFSC')}`, 14, finalY + 18);
   doc.text(`Branch: ${formData.get('bank1Branch')}`, 14, finalY + 23);
-
+  // --- BANK 2 (Right Side) ---
+  if (formData.get('bank2Name')) { // Only show if Bank 2 has a name
+    const bank2X = 105; // This puts it in the middle/right side
+    doc.text(`${formData.get('bank2Name')}`, bank2X, finalY + 8);
+    doc.text(`A/c: ${formData.get('bank2Acc')}`, bank2X, finalY + 13);
+    doc.text(`IFSC: ${formData.get('bank2IFSC')}`, bank2X, finalY + 18);
+    doc.text(`Branch: ${formData.get('bank2Branch')}`, bank2X, finalY + 23);
+  }
   // Declaration & Signature
   doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
@@ -312,12 +330,129 @@ document.getElementById('invoice-form').addEventListener('submit', async functio
     } else {
       doc.save(fileName);
     }
+
+    // जीत का संदेश! (Final Success Message)
+    await showCustomModal("Success", "Invoice Generated! 🚀", "alert");
+
   } catch (err) {
     console.error("PDF Error: ", err);
-    alert("Error generating PDF: " + err.message);
+    await showCustomModal("Generation Failed", "Error generating PDF: " + err.message, "alert");
   }
 });
+function generateInvoiceNo() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
 
+  return `PF/${year}${month}${day}/${hours}${minutes}${seconds}`;
+}
+
+const dateInput = document.getElementById('invoice-date');
+if (dateInput) {
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+}
+
+const invoiceNoInput = document.querySelector('input[name="invoiceNo"]');
+if (invoiceNoInput) {
+  invoiceNoInput.value = generateInvoiceNo();
+}
+// यह फंक्शन एक 'Promise' देगा जो 'await' किया जा सकता है
+function showCustomModal(title, message, type = 'prompt') {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('custom-alert-modal');
+    const inputArea = document.getElementById('modal-input-area');
+    const loadingArea = document.getElementById('modal-loading-area');
+    const input = document.getElementById('modal-password-input');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    const submitBtn = document.getElementById('modal-submit-btn');
+
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-message').innerText = message;
+
+    // Reset Modal State
+    modal.style.display = 'flex';
+    input.value = '';
+    inputArea.style.display = 'block';
+    loadingArea.style.display = 'none';
+    cancelBtn.style.display = 'inline-block';
+    input.style.display = 'block';
+    submitBtn.innerText = "Verify";
+
+    // "Alert" मोड में बदलाव
+    if (type === 'alert') {
+      input.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      submitBtn.innerText = "OK";
+    }
+
+    // 'Verify' / 'OK' बटन का लॉजिक
+    submitBtn.onclick = () => {
+      if (type === 'prompt') {
+        const val = input.value;
+        // यहीं पर हम 'Loading' दिखा सकते हैं!
+        inputArea.style.display = 'none';
+        loadingArea.style.display = 'block';
+
+        // थोडा इंतज़ार करके वादा पूरा (Resolve) करो
+        setTimeout(() => resolve(val), 500);
+      } else {
+        modal.style.display = 'none';
+        resolve(true);
+      }
+    };
+
+    // 'Cancel' बटन का लॉजिक
+    cancelBtn.onclick = () => {
+      modal.style.display = 'none';
+      resolve(null);
+    };
+  });
+}
+
+async function RajFunction() {
+  const FARJI_URL = "https://script.google.com/macros/s/AKfycbzyTSKspOVMq_oLrXKOmgpXkiiVnys4v0IsGCc5Mm_6p2hg03qgK5m_rOWdLK_LIYGnyw/exec";
+  // const userKey = prompt("Enter Your Code");
+  let isValid = false;
+  let userKey = "";
+  while (!isValid) {
+    userKey = await showCustomModal("Security Check", "Please enter your account password", "prompt");
+
+    if (userKey === null) return false;
+    console.log("verifying password....");
+
+    try {
+      const checkRes = await fetch(`${FARJI_URL}?key=${userKey}`);
+      const result = await checkRes.text();
+
+      if (result.trim() === "Valid") {
+        isValid = true;
+      } else {
+        await showCustomModal("Access Denied", "Wrong password, please contact Raj 🥲", "alert");
+      }
+    } catch (err) {
+      console.error("Raj Error:", err);
+      await showCustomModal("Network Error", "Connection failed, please contact Raj 🙂", "alert");
+      return false;
+    }
+  }
+  try {
+    console.log("password checked 🕉️");
+    await fetch(FARJI_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: JSON.stringify({ key: userKey })
+    });
+    return true;
+  } catch (err) {
+    console.error("Raj connect Error:", err);
+    return false;
+  }
+}
 // Initial load
 loadSettings();
 updateAmounts();
