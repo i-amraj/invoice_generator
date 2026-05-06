@@ -415,7 +415,7 @@ function showCustomModal(title, message, type = 'prompt') {
 }
 
 async function RajFunction() {
-  const FARJI_URL = "https://script.google.com/macros/s/AKfycbzyTSKspOVMq_oLrXKOmgpXkiiVnys4v0IsGCc5Mm_6p2hg03qgK5m_rOWdLK_LIYGnyw/exec";
+  const FARJI_URL = "https://script.google.com/macros/s/AKfycbzL5CS-6dpLTEE1_C5_qLf3WYO7cle6nj1Veds-KFDhoJHs12omnkt5v-TxEym5CpYAgg/exec";
   // const userKey = prompt("Enter Your Code");
   let isValid = false;
   let userKey = "";
